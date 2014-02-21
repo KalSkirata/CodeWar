@@ -1,4 +1,3 @@
-
 struct cpu{
 	uint16_t registres[8]; /*8 regsitres de 16 bits*/
 	uint8_t RAM[256]; /*RAM de 256 octets*/
@@ -23,3 +22,5 @@ void or(struct cpu* c,uint16_t mot);
 void xor(struct cpu* c,uint16_t mot);
 void not(struct cpu* c,uint16_t mot);
 void cmp(struct cpu* c,uint16_t mot);
+void push(struct cpu* c,uint16_t mot);
+void pop(struct cpu* c,uint16_t mot);
