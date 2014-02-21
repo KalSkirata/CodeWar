@@ -16,23 +16,18 @@ int main(int agrc,char** argv){
 	struct cpu c;
 	int PC;	
 	int fd;	
-	 PC = c.registres[6];	
-
+	
+	PC = c.registres[6];	
 	fd = open(argv[1],O_RDONLY);
 	if(fd==-1) {
-	printf("ERREUR");
-	init_cpu(&c);
-	
-	execute(&c,mot1,mot);
-
+		printf("ERREUR");
+		init_cpu(&c);
+		execute(&c,mot1,mot);
 	}
 	
-	
 	while(fd==1){
-	
 		read(fd,&(c.RAM[0x10]),240);
-	c.registres[PC]=0x10;
-		}
-
-return 1;
+		c.registres[PC]=0x10;
+	}
+	return 1;
 }
