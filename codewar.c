@@ -395,7 +395,7 @@ void move_l(struct cpu *c,int typeSource,int typeDes,uint16_t valeurR,uint16_t m
 
 void move_simple(struct cpu *c,int typeSource,int typeDes,uint16_t valeurR,uint16_t mot1,uint16_t mot2){
 
-	/*  Move simple avec valeur immediate comme source et  registre comme destination */
+	/*  Move simple avec valeur immediate comme source et registre comme destination */
 	if(typeSource==4 && typeDes==0){
 		c->registres[valeurR]=mot2;
 	
@@ -432,6 +432,7 @@ void move_simple(struct cpu *c,int typeSource,int typeDes,uint16_t valeurR,uint1
 		c->registres[valeurR]+=2;
 	}	
 
+	/* Move simple / S:Registre / D:Registre */
 	if((typeSource==0) && (typeDes==0)){
 		c->registres[mot2]=c->registres[valeurR];
 			
@@ -833,7 +834,75 @@ void not(struct cpu* c,uint16_t mot){
 }
 
 void push(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		case 5: printf("Adresse \n");break;
+	}
 
+	/* Move simple / S:Registre */
+	if(typeOperande == 0){
+		c->registres[7]--;
+		c->registres[7]=c->registres[valeurOperande];
+	
+	/* Move simple / S:Registre pré-décrémenté */
+	}else if(typeOperande == 1){
+		c->registres[7]--;	
+		c->registres[valeurOperande]--;
+		c->registres[7]=c->registres[valeurOperande];
+
+	/* Move simple / S:Adressage indirect */
+	}else if(typeOperande == 2){
+		c->registres[7]--;
+		c->registres[7]=c->RAM[c->registres[valeurOperande]]
+	
+	/* Move simple / S:Registre post-incrémenté */
+	}else if(typeOperande == 3){
+		c->registres[7]--;	
+		c->registres[7]=c->registres[valeurOperande];
+		c->registres[valeurOperande]++;
+	}
+}
+
+void pop(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		case 5: printf("Adresse \n");break;
+	}
+
+	/* Move simple / S:Registre */
+	if(typeOperande == 0){
+		c->registres[7]=c->registres[valeurOperande];
+		c->registres[7]++;
+
+	/* Move simple / S:Registre pré-décrémenté */
+	}else if(typeOperande == 1){
+		c->registres[valeurOperande]--;
+		c->registres[7]=c->registres[valeurOperande];
+		c->registres[7]++;
+
+	/* Move simple / S:Adressage indirect */
+	}else if(typeOperande == 2){
+		c->registres[7]=c->RAM[c->registres[valeurOperande]];
+		c->registres[7]++;
+	
+	/* Move simple / S:Registre post-incrémenté */
+	}else if(typeOperande == 3){	
+		c->registres[7]=c->registres[valeurOperande];
+		c->registres[valeurOperande]++;
+		c->registres[7]++;
+	}
 }
 
 void init_cpu(struct cpu *c){
