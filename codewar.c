@@ -859,7 +859,7 @@ void push(struct cpu* c,uint16_t mot){
 	/* Move simple / S:Adressage indirect */
 	}else if(typeOperande == 2){
 		c->registres[7]--;
-		c->registres[7]=c->RAM[c->registres[valeurOperande]]
+		c->registres[7]=c->RAM[c->registres[valeurOperande]];
 	
 	/* Move simple / S:Registre post-incrémenté */
 	}else if(typeOperande == 3){
