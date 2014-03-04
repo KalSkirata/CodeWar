@@ -847,24 +847,24 @@ void push(struct cpu* c,uint16_t mot){
 
 	/* Move simple / S:Registre */
 	if(typeOperande == 0){
-		c->registres[7]--;
-		c->registres[7]=c->registres[valeurOperande];
+		
+		c->RAM[c->registres[7]]=c->registres[valeurOperande];
 	
 	/* Move simple / S:Registre pré-décrémenté */
 	}else if(typeOperande == 1){
-		c->registres[7]--;	
+
 		c->registres[valeurOperande]--;
-		c->registres[7]=c->registres[valeurOperande];
+		c->RAM[c->registres[7]]=c->registres[valeurOperande];
 
 	/* Move simple / S:Adressage indirect */
 	}else if(typeOperande == 2){
-		c->registres[7]--;
-		c->registres[7]=c->RAM[c->registres[valeurOperande]];
+		
+		c->RAM[c->registres[7]]=c->RAM[c->registres[valeurOperande]];
 	
 	/* Move simple / S:Registre post-incrémenté */
 	}else if(typeOperande == 3){
-		c->registres[7]--;	
-		c->registres[7]=c->registres[valeurOperande];
+		
+		c->RAM[c->registres[7]]=c->registres[valeurOperande];
 		c->registres[valeurOperande]++;
 	}
 }
@@ -883,27 +883,480 @@ void pop(struct cpu* c,uint16_t mot){
 
 	/* Move simple / S:Registre */
 	if(typeOperande == 0){
-		c->registres[7]=c->registres[valeurOperande];
-		c->registres[7]++;
+		c->registres[valeurOperande]=c->RAM[c->registres[7]];
+	
 
 	/* Move simple / S:Registre pré-décrémenté */
 	}else if(typeOperande == 1){
 		c->registres[valeurOperande]--;
-		c->registres[7]=c->registres[valeurOperande];
-		c->registres[7]++;
+		c->registres[valeurOperande]=c->RAM[c->registres[7]];
+	
 
 	/* Move simple / S:Adressage indirect */
 	}else if(typeOperande == 2){
-		c->registres[7]=c->RAM[c->registres[valeurOperande]];
-		c->registres[7]++;
+		c->RAM[c->registres[valeurOperande]]=c->RAM[c->registres[7]];
+	
 	
 	/* Move simple / S:Registre post-incrémenté */
 	}else if(typeOperande == 3){	
-		c->registres[7]=c->registres[valeurOperande];
-		c->registres[valeurOperande]++;
-		c->registres[7]++;
+		c->registres[valeurOperande]=c->RAM[c->registres[7]];
+		c->registres[valeurOperande]+=2;
+
 	}
 }
+void bcc(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if(c->C==0){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[6]+c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=c->registres[6]+valeurOperande;
+		}
+
+	}
+
+
+}
+void bcs(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if(c->C==1){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[6]+c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=c->registres[6]+valeurOperande;
+		}
+
+	}
+
+
+}
+void beq(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if(c->Z==1){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[6]+c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=c->registres[6]+valeurOperande;
+		}
+
+	}
+
+
+}
+void bne(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if(c->Z==0){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[6]+c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=c->registres[6]+valeurOperande;
+		}
+
+	}
+
+
+}void ble(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if((c->C==1) | (c->Z==1)){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[6]+c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=c->registres[6]+valeurOperande;
+		}
+
+	}
+
+
+}
+void bge(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if((c->C==0) | (c->Z==1)){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[6]+c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=c->registres[6]+valeurOperande;
+		}
+
+	}
+
+
+}
+void bra(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[6]+c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=c->registres[6]+valeurOperande;
+		}
+
+	
+
+
+}
+
+void jcc(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if(c->C==0){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=valeurOperande;
+		}
+
+	}
+
+
+}
+void jcs(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if(c->C==1){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=valeurOperande;
+		}
+
+	}
+
+
+}
+void jeq(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if(c->Z==1){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=valeurOperande;
+		}
+
+	}
+
+
+}
+void jne(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if(c->Z==0){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=valeurOperande;
+		}
+
+	}
+
+
+}
+void jle(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if((c->C==1) | (c->Z==1)){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=valeurOperande;
+		}
+
+	}
+
+
+}
+void jge(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	if((c->C==0) | (c->Z==1)){
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=valeurOperande;
+		}
+
+	}
+
+
+}
+void jmp(struct cpu* c,uint16_t mot){
+	int typeOperande = (mot >> 8) & 7;
+	int valeurOperande = mot & 77;
+	switch(typeOperande){
+		case 0: printf("Registre \n"); break;
+		case 1: printf("Registre pré-décrementé \n");break;
+		case 2: printf("Adressage indirect \n");break;
+		case 3: printf("Registre post-incrémenté \n");break;
+		case 4: printf("Valeur immediate \n");break;
+		
+	}
+
+	
+		if(typeOperande==0){
+
+			c->registres[6]=c->registres[valeurOperande];
+		}else if(typeOperande==1){
+			c->registres[valeurOperande]-=2;
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==2){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+		}else if(typeOperande==3){
+			c->registres[6]=c->RAM[c->registres[valeurOperande]];
+				c->registres[valeurOperande]+=2;
+		}else {
+			c->registres[6]=valeurOperande;
+		}
+
+	
+
+
+}
+
+
+
+
+
 
 void init_cpu(struct cpu *c){
 	int i;
@@ -934,6 +1387,24 @@ void execute(struct cpu *c,uint16_t mot1,uint16_t mot2){
 		case 9:or(c,mot1);break;
 		case 10:xor(c,mot1);break;
 		case 11:not(c,mot1);break;
+		case 02:pop(c,mot1);break;
+		case 01:push(c,mot1);break;
+		case 12:bcc(c,mot1);break;
+		case 13:bcs(c,mot1);break;
+		case 14:beq(c,mot1);break;
+		case 15:bne(c,mot1);break;
+		case 16:ble(c,mot1);break;
+		case 17:bge(c,mot1);break;
+		case 18:bra(c,mot1);break;
+		case 20:jcc(c,mot1);break;
+		case 21:jcs(c,mot1);break;
+		case 22:jeq(c,mot1);break;
+		case 23:jne(c,mot1);break;
+		case 24:jle(c,mot1);break;
+		case 25:jge(c,mot1);break;
+		case 26:jmp(c,mot1);break;
+		
+
 		/*...*/
 	}	
 }
