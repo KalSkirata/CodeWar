@@ -56,13 +56,37 @@ void move_general(struct cpu *c,uint16_t mot1,uint16_t mot2){
 		if(typeMove==1){
 		move_l(c,typeSource,typeDes,valeurR,mot1,mot2);
 
+		c->C=0;
+		c->N=((mot1&0xFF)&0x40)>>6;
+		if(mot1==0){
+			c->Z=1;
+		}else{
+			c->Z=0;
+		}
+
 		/* Move.h */
 		}else if(typeMove==2){
 			move_h(c,typeSource,typeDes,valeurR,mot1,mot2);
 
+			c->C=0;
+			c->N=(((mot1&0xFF00)>>8)&0x40)>>6; /* bits de poids forts et on prend le 7ème */
+			if(mot1==0){
+				c->Z=1;
+			}else{
+				c->Z=0;
+			}
+
 		/* Move simple */
 		}else if(typeMove==3){
 			move_simple(c,typeSource,typeDes,valeurR,mot1,mot2);
+
+			c->C=0;
+			c->N=(mot1&0x4000)>>14;
+			if(mot1==0){
+				c->Z=1;
+			}else{
+				c->Z=0;
+			}
 		}	
 	}else{
 		printf(" Registre de source  %d \n", valeurR);
@@ -70,16 +94,40 @@ void move_general(struct cpu *c,uint16_t mot1,uint16_t mot2){
 		/* Move simple */
 		if(typeMove==3){
 
-		/* Move simple / S:Registre / D:Registre */	
-		move_simple(c,typeSource,typeDes,valeurR,mot1,mot2);
+			/* Move simple / S:Registre / D:Registre */	
+			move_simple(c,typeSource,typeDes,valeurR,mot1,mot2);
 
+			c->C=0;
+			c->N=(mot1&0x4000)>>14;
+			if(mot1==0){
+				c->Z=1;
+			}else{
+				c->Z=0;
+			}
 
 		/* Move.h */	  
 		}else if(typeMove==2){
 			move_h(c,typeSource,typeDes,valeurR,mot1,mot2);		
+
+			c->C=0;
+			c->N=(((mot1&0xFF00)>>8)&0x40)>>6; /* bits de poids forts et on prend le 7ème */
+			if(mot1==0){
+				c->Z=1;
+			}else{
+				c->Z=0;
+			}
+
 		/* Move.l */
 		}else if(typeMove==1){
 			move_l(c,typeSource,typeDes,valeurR,mot1,mot2);
+
+			c->C=0;
+			c->N=((mot1&0xFF)&0x40)>>6;
+			if(mot1==0){
+				c->Z=1;
+			}else{
+				c->Z=0;
+			}
 		}
 	}
 }
@@ -232,6 +280,15 @@ void move_h(struct cpu *c,int typeSource,int typeDes,uint16_t valeurR,uint16_t m
 	}else if((typeSource==3) && (typeDes==5)){
 		 *((uint16_t*) & (c->RAM[mot2]))=(c->registres[valeurR]>>8) & 0xFF;	 
 		  c->registres[valeurR]+=1;
+	}
+
+	/* Gestion des flags */
+	c->C=0;
+	c->N=(((mot1&0xFF00)>>8)&0x40)>>6; /* bits de poids forts et on prend le 7ème */
+	if(mot1==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
 	}
 }
 
@@ -391,6 +448,15 @@ void move_l(struct cpu *c,int typeSource,int typeDes,uint16_t valeurR,uint16_t m
 		 *((uint16_t*) & (c->RAM[mot2]))=(c->registres[valeurR]) & 0xFF;	 
 		  c->registres[valeurR]+=1;
 	}
+
+	/* Gestion des flags */
+	c->C=0;
+	c->N=((mot1&0xFF)&0x40)>>6;
+	if(mot1==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
 }
 
 void move_simple(struct cpu *c,int typeSource,int typeDes,uint16_t valeurR,uint16_t mot1,uint16_t mot2){
@@ -533,7 +599,17 @@ void move_simple(struct cpu *c,int typeSource,int typeDes,uint16_t valeurR,uint1
 		 *((uint16_t*) & (c->RAM[mot2]))=c->registres[valeurR];		 
 		  c->registres[valeurR]+=2;
 	}
+
+	/* Gestion des flags */
+	c->C=0;
+	c->N=(mot1&0x4000)>>14;
+	if(mot1==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
 }
+
 void add(struct cpu* c,uint16_t mot){
 
 	int typeSource=0;
@@ -565,6 +641,19 @@ void add(struct cpu* c,uint16_t mot){
 	}else if(typeSource==3){
 		c->registres[T1]=c->registres[T1] + c->RAM[c->registres[valeurR]];
 		c->registres[valeurR]+=2;	
+	}
+
+	/* Gestion des flags */
+	c->N=((c->registres[T1])&0x2)>>1;
+	if(c->registres[T1]==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
+	if(c->registres[T1]>0xFFFF){
+		c->C=1;
+	}else{
+		c->C=0;
 	}
 }
 
@@ -604,6 +693,19 @@ void cmp(struct cpu* c,uint16_t mot){
 		c->registres[valeurR]+=2;	
 		printf("%d\n",RES );
 	}
+
+	/* Gestion des flags */
+	c->N=((c->registres[T1])&0x2)>>1;
+	if(c->registres[T1]==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
+	if(c->registres[T1]<0){
+		c->C=1;
+	}else{
+		c->C=0;
+	}
 }
 
 void sub(struct cpu* c,uint16_t mot){
@@ -636,6 +738,19 @@ void sub(struct cpu* c,uint16_t mot){
 		c->registres[T1]=c->registres[T1] - c->RAM[c->registres[valeurR]];
 		c->registres[valeurR]+=2;	
 	}
+
+	/* Gestion des flags */
+	c->N=((c->registres[T1])&0x2)>>1;
+	if(c->registres[T1]==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
+	if(c->registres[T1]<0){
+		c->C=1;
+	}else{
+		c->C=0;
+	}
 }
 
 void lsl(struct cpu* c,uint16_t mot){
@@ -644,6 +759,7 @@ void lsl(struct cpu* c,uint16_t mot){
 	int T1 = (mot >> 8) & 7;
 	int T2 = (mot >> 5) & 7;	
 	uint16_t valeurR=mot & 0x1F;
+	int dernierbitdecale = (c->registres[T1])&0x1;
 
 	switch(T2){
 		case 0: printf("Registre \n"); typeSource=0; break;
@@ -656,7 +772,7 @@ void lsl(struct cpu* c,uint16_t mot){
 
 	if(typeSource==4){
 		c->registres[T1]=0x4;
-		c->registres[T1]=c->registres[T1]<<(valeurR );
+		c->registres[T1]=c->registres[T1]<<(valeurR);
 	}else if (typeSource==0){
 		c->registres[T1]=c->registres[T1]<< (c->registres[valeurR]);
 	}else if(typeSource==1){
@@ -668,6 +784,15 @@ void lsl(struct cpu* c,uint16_t mot){
 		c->registres[T1]=c->registres[T1] << (c->RAM[c->registres[valeurR]]);
 		c->registres[valeurR]+=2;	
 	}
+
+	/* Gestion des flags */
+	c->N=((c->registres[T1])&0x2)>>1;
+	if(c->registres[T1]==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
+	c->C=dernierbitdecale;
 }
 
 void lsr(struct cpu* c,uint16_t mot){
@@ -676,6 +801,7 @@ void lsr(struct cpu* c,uint16_t mot){
 	int T1 = (mot >> 8) & 7;
 	int T2 = (mot >> 5) & 7;	
 	uint16_t valeurR=mot & 0x1F;
+	int dernierbitdecale = ((c->registres[T1])&0x10000>>15);
 
 	switch(T2){
 		case 0: printf("Registre \n"); typeSource=0; break;
@@ -700,6 +826,15 @@ void lsr(struct cpu* c,uint16_t mot){
 		c->registres[T1]=c->registres[T1] >> (c->RAM[c->registres[valeurR]]);
 		c->registres[valeurR]+=2;	
 	}
+	
+	/* Gestion des flags */
+	c->N=((c->registres[T1])&0x2)>>1;
+	if(c->registres[T1]==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
+	c->C=dernierbitdecale;
 }
 
 void and(struct cpu* c,uint16_t mot){
@@ -733,6 +868,15 @@ void and(struct cpu* c,uint16_t mot){
 		c->registres[T1]=c->registres[T1] & (c->RAM[c->registres[valeurR]]);
 		c->registres[valeurR]+=2;	
 	}
+
+	/* Gestion des flags */
+	c->N=((c->registres[T1])&0x2)>>1;
+	if(c->registres[T1]==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
+	c->C=0;
 }
 
 void or(struct cpu* c,uint16_t mot){
@@ -766,6 +910,15 @@ void or(struct cpu* c,uint16_t mot){
 		c->registres[T1]=c->registres[T1] | (c->RAM[c->registres[valeurR]]);
 		c->registres[valeurR]+=2;	
 	}
+
+	/* Gestion des flags */
+	c->N=((c->registres[T1])&0x2)>>1;
+	if(c->registres[T1]==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
+	c->C=0;
 }
 
 void xor(struct cpu* c,uint16_t mot){
@@ -801,6 +954,15 @@ void xor(struct cpu* c,uint16_t mot){
 		c->registres[valeurR]+=2;	
 		afficher_cpu(c);
 	}
+
+	/* Gestion des flags */
+	c->N=((c->registres[T1])&0x2)>>1;
+	if(c->registres[T1]==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
+	c->C=0;
 }
 
 void not(struct cpu* c,uint16_t mot){
@@ -831,6 +993,15 @@ void not(struct cpu* c,uint16_t mot){
 		c->RAM[c->registres[valeurR]]= ~(c->RAM[c->registres[valeurR]]);
 		c->registres[valeurR]+=2;
 	}
+
+	/* Gestion des flags */
+	c->N=((c->registres[T2])&0x2)>>1;
+	if(c->registres[T2]==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
+	c->C=0;
 }
 
 void push(struct cpu* c,uint16_t mot){
@@ -866,6 +1037,15 @@ void push(struct cpu* c,uint16_t mot){
 		
 		c->RAM[c->registres[7]]=c->registres[valeurOperande];
 		c->registres[valeurOperande]++;
+	}
+
+	/* Gestion des flags */
+	c->C=0;
+	c->N=(mot1&0x4000)>>14;
+	if(mot1==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
 	}
 }
 
@@ -903,7 +1083,17 @@ void pop(struct cpu* c,uint16_t mot){
 		c->registres[valeurOperande]+=2;
 
 	}
+
+	/* Gestion des flags */
+	c->C=0;
+	c->N=(mot1&0x4000)>>14;
+	if(mot1==0){
+		c->Z=1;
+	}else{
+		c->Z=0;
+	}
 }
+
 void bcc(struct cpu* c,uint16_t mot){
 	int typeOperande = (mot >> 8) & 7;
 	int valeurOperande = mot & 77;
@@ -936,6 +1126,7 @@ void bcc(struct cpu* c,uint16_t mot){
 
 
 }
+
 void bcs(struct cpu* c,uint16_t mot){
 	int typeOperande = (mot >> 8) & 7;
 	int valeurOperande = mot & 77;
@@ -968,6 +1159,7 @@ void bcs(struct cpu* c,uint16_t mot){
 
 
 }
+
 void beq(struct cpu* c,uint16_t mot){
 	int typeOperande = (mot >> 8) & 7;
 	int valeurOperande = mot & 77;
@@ -1000,6 +1192,7 @@ void beq(struct cpu* c,uint16_t mot){
 
 
 }
+
 void bne(struct cpu* c,uint16_t mot){
 	int typeOperande = (mot >> 8) & 7;
 	int valeurOperande = mot & 77;
@@ -1027,11 +1220,10 @@ void bne(struct cpu* c,uint16_t mot){
 		}else {
 			c->registres[6]=c->registres[6]+valeurOperande;
 		}
-
 	}
+}
 
-
-}void ble(struct cpu* c,uint16_t mot){
+void ble(struct cpu* c,uint16_t mot){
 	int typeOperande = (mot >> 8) & 7;
 	int valeurOperande = mot & 77;
 	switch(typeOperande){
@@ -1058,11 +1250,9 @@ void bne(struct cpu* c,uint16_t mot){
 		}else {
 			c->registres[6]=c->registres[6]+valeurOperande;
 		}
-
 	}
-
-
 }
+
 void bge(struct cpu* c,uint16_t mot){
 	int typeOperande = (mot >> 8) & 7;
 	int valeurOperande = mot & 77;
@@ -1090,11 +1280,9 @@ void bge(struct cpu* c,uint16_t mot){
 		}else {
 			c->registres[6]=c->registres[6]+valeurOperande;
 		}
-
 	}
-
-
 }
+
 void bra(struct cpu* c,uint16_t mot){
 	int typeOperande = (mot >> 8) & 7;
 	int valeurOperande = mot & 77;
@@ -1107,25 +1295,19 @@ void bra(struct cpu* c,uint16_t mot){
 		
 	}
 
-	
-		if(typeOperande==0){
-
-			c->registres[6]=c->registres[6]+c->registres[valeurOperande];
-		}else if(typeOperande==1){
-			c->registres[valeurOperande]-=2;
-			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
-		}else if(typeOperande==2){
-			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
-		}else if(typeOperande==3){
-			c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
-				c->registres[valeurOperande]+=2;
-		}else {
-			c->registres[6]=c->registres[6]+valeurOperande;
-		}
-
-	
-
-
+	if(typeOperande==0){
+		c->registres[6]=c->registres[6]+c->registres[valeurOperande];
+	}else if(typeOperande==1){
+		c->registres[valeurOperande]-=2;
+		c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+	}else if(typeOperande==2){
+		c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+	}else if(typeOperande==3){
+		c->registres[6]=c->registres[6]+c->RAM[c->registres[valeurOperande]];
+		c->registres[valeurOperande]+=2;
+	}else {
+		c->registres[6]=c->registres[6]+valeurOperande;
+	}
 }
 
 void jcc(struct cpu* c,uint16_t mot){
@@ -1219,11 +1401,9 @@ void jeq(struct cpu* c,uint16_t mot){
 		}else {
 			c->registres[6]=valeurOperande;
 		}
-
 	}
-
-
 }
+
 void jne(struct cpu* c,uint16_t mot){
 	int typeOperande = (mot >> 8) & 7;
 	int valeurOperande = mot & 77;
@@ -1425,7 +1605,7 @@ void afficher_cpu(struct cpu* c){
 	printf("\n");
 	for(j=0;j<8;j++){
 		printf("R[%d] = ",j);
-		printf("%x",c->registres[j] );
+		printf("%x",c->registres[j]);
 		printf("\n");
 	}
 	printf(" \n");
