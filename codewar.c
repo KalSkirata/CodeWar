@@ -1005,8 +1005,8 @@ void not(struct cpu* c,uint16_t mot){
 }
 
 void push(struct cpu* c,uint16_t mot){
-	int typeOperande = (mot >> 8) & 7;
-	int valeurOperande = mot & 77;
+	int typeOperande = (mot >> 5) & 7;
+	int valeurOperande = mot & 0x1F;
 	switch(typeOperande){
 		case 0: printf("Registre \n"); break;
 		case 1: printf("Registre pré-décrementé \n");break;
@@ -1046,8 +1046,8 @@ void push(struct cpu* c,uint16_t mot){
 }
 
 void pop(struct cpu* c,uint16_t mot){
-	int typeOperande = (mot >> 8) & 7;
-	int valeurOperande = mot & 77;
+	int typeOperande = (mot >> 5) & 7;
+	int valeurOperande = mot & 0x1F;
 	switch(typeOperande){
 		case 0: printf("Registre \n"); break;
 		case 1: printf("Registre pré-décrementé \n");break;
@@ -1091,8 +1091,8 @@ void pop(struct cpu* c,uint16_t mot){
 }
 
 void bcc(struct cpu* c,uint16_t mot){
-	int typeOperande = (mot >> 8) & 7;
-	int valeurOperande = mot & 77;
+	int typeOperande = (mot >> 5) & 7;
+	int valeurOperande = mot & 0x1f;
 	switch(typeOperande){
 		case 0: printf("Registre \n"); break;
 		case 1: printf("Registre pré-décrementé \n");break;
@@ -1119,8 +1119,8 @@ void bcc(struct cpu* c,uint16_t mot){
 }
 
 void bcs(struct cpu* c,uint16_t mot){
-	int typeOperande = (mot >> 8) & 7;
-	int valeurOperande = mot & 77;
+	int typeOperande = (mot >> 5) & 7;
+	int valeurOperande = mot & 0x1f;
 	switch(typeOperande){
 		case 0: printf("Registre \n"); break;
 		case 1: printf("Registre pré-décrementé \n");break;
@@ -1147,8 +1147,8 @@ void bcs(struct cpu* c,uint16_t mot){
 }
 
 void beq(struct cpu* c,uint16_t mot){
-	int typeOperande = (mot >> 8) & 7;
-	int valeurOperande = mot & 77;
+	int typeOperande = (mot >> 5) & 7;
+	int valeurOperande = mot & 0x1f;
 	switch(typeOperande){
 		case 0: printf("Registre \n"); break;
 		case 1: printf("Registre pré-décrementé \n");break;
@@ -1175,8 +1175,8 @@ void beq(struct cpu* c,uint16_t mot){
 }
 
 void bne(struct cpu* c,uint16_t mot){
-	int typeOperande = (mot >> 8) & 7;
-	int valeurOperande = mot & 77;
+	int typeOperande = (mot >> 5) & 7;
+	int valeurOperande = mot & 0x1f;
 	switch(typeOperande){
 		case 0: printf("Registre \n"); break;
 		case 1: printf("Registre pré-décrementé \n");break;
@@ -1203,8 +1203,8 @@ void bne(struct cpu* c,uint16_t mot){
 }
 
 void ble(struct cpu* c,uint16_t mot){
-	int typeOperande = (mot >> 8) & 7;
-	int valeurOperande = mot & 77;
+	int typeOperande = (mot >> 5) & 7;
+	int valeurOperande = mot & 0x1f;
 	switch(typeOperande){
 		case 0: printf("Registre \n"); break;
 		case 1: printf("Registre pré-décrementé \n");break;
@@ -1231,8 +1231,8 @@ void ble(struct cpu* c,uint16_t mot){
 }
 
 void bge(struct cpu* c,uint16_t mot){
-	int typeOperande = (mot >> 8) & 7;
-	int valeurOperande = mot & 77;
+	int typeOperande = (mot >> 5) & 7;
+	int valeurOperande = mot & 0x1f;
 	switch(typeOperande){
 		case 0: printf("Registre \n"); break;
 		case 1: printf("Registre pré-décrementé \n");break;
@@ -1458,6 +1458,7 @@ void jge(struct cpu* c,uint16_t mot){
 		}
 	}
 }
+
 void jmp(struct cpu* c,uint16_t mot){
 	int typeOperande = (mot >> 8) & 7;
 	int valeurOperande = mot & 77;
@@ -1482,6 +1483,16 @@ void jmp(struct cpu* c,uint16_t mot){
 	}else{
 		c->registres[6]=valeurOperande;
 	}
+}
+
+void rts(struct cpu *c){
+	/* Même instruction qu'un pop() avec le registre 7 */
+	pop(c,0x7);
+}
+
+void rte(struct cpu *c){
+	pop(c,0x7);
+	
 }
 
 void init_cpu(struct cpu *c){
