@@ -6,6 +6,8 @@
 #define MOVE 0
 #define PUSH 1
 
+uint16_t bits;
+
 void move_general(struct cpu *c,uint16_t mot1,uint16_t mot2){
 	/*c->registres[0]=0;
 	c->N=0;		
@@ -1037,8 +1039,8 @@ void push(struct cpu* c,uint16_t mot){
 
 	/* Gestion des flags */
 	c->C=0;
-	c->N=(mot1&0x4000)>>14;
-	if(mot1==0){
+	c->N=(mot&0x4000)>>14;
+	if(mot==0){
 		c->Z=1;
 	}else{
 		c->Z=0;
@@ -1082,7 +1084,7 @@ void pop(struct cpu* c,uint16_t mot){
 
 	/* Gestion des flags */
 	c->C=0;
-	c->N=(mot1&0x4000)>>14;
+	c->N=(mot&0x4000)>>14;
 	if(mot1==0){
 		c->Z=1;
 	}else{
